@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+    .enter-item {
+        width: 100%;
+    }
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+  <form action="" method="post">
+    {% csrf_token %}
+    <table>
+    {{ form.as_table }}
+    </table>
+
+    <input type="submit" value="Submit">
+  </form>
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+    <!-- Built from: https://datatables.net/download/ -->
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <script>
+
+$(document).ready(function() {
+    $('#id_GROUP').select2({
+        width: 'resolve'
+    });
+    $('#id_SOURCE').select2();
+    $('#id_FOOD_C').select2();
+    $('#id_MEASURE_ID').select2();
+
+});
+
+    </script>
+
+{% endblock extra_javascript %}

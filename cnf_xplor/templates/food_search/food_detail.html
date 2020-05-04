@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css"
+          integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous">
+
+    <style>
+
+        .right-column {
+            text-align: right;
+        }
+
+        .icons {
+            float: right;
+            cursor: pointer;
+            padding-right: 5px;
+        }
+
+        .rightmost-icon {
+            padding-right: 25px;
+        }
+
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-8">
+
+            <div class="card">
+                <div class="card-header">
+                    Food code:
+                </div>
+                <div class="card-body card-body-big" id="food_c">
+                    {{ food.FOOD_C }}
+                </div>
+
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    Group code:
+                </div>
+                <div class="card-body card-body-big">
+                    {{ food.GROUP.GROUP_C }}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    Source code:
+                </div>
+                <div class="card-body card-body-big">
+                    {{ food.SOURCE.SOURCE_C }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    USDA NDB numb:
+                </div>
+                <div class="card-body card-body-big">
+                    {{ food.COUNTRY_C }}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <i class="far fa-edit fa-2x icons rightmost-icon" id="edit_food" data-toggle="tooltip"
+               title="Edit"></i>
+            <i class="fas fa-history fa-2x icons" id="edit_food_history" data-toggle="tooltip"
+               title="History of edits"></i>
+            <i class="fas fa-capsules fa-2x icons" id="nutrients" data-toggle="tooltip"
+               title="Nutrients "></i>
+            <i class="fab fa-nutritionix fa-2x icons" id="conversion_factors" data-toggle="tooltip"
+               title="Conversion factors"></i>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <table class="table table-sm results-table" style="width:100%">
+                <thead>
+                <tr>
+                    <th style="width: 15%">Food description:</th>
+                    <th style="width: 30%">{{ food.FOOD_DESC }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Food description (French):</th>
+                    <th style="width: 30%">{{ food.FOOD_DESC_F }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Scientific name:</th>
+                    <th style="width: 30%">{{ food.SCIENTIFIC_NAME }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Comment:</th>
+                    <th style="width: 30%">{{ food.COMMENT_T }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Comment (French):</th>
+                    <th style="width: 30%">{{ food.FN_COMMENT_T }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Food reference:</th>
+                    <th style="width: 30%">{{ food.FOOD_REFERENCE }}</th>
+                </tr>
+                <tr>
+                    <th style="width: 15%">Publication code:</th>
+                    <th style="width: 30%">{{ food.PUBLICATION_CODE }}</th>
+                </tr>
+
+
+                </thead>
+            </table>
+        </div>
+        <div class="col-sm-2">
+            <div class="card date-card">
+                <div class="card-header">
+                    Date of entry:
+                </div>
+                <div class="card-body">
+                    {{ food.DATE_ENTRY|date:'Y-m-d' }}
+                </div>
+            </div>
+            <br>
+            <div class="card">
+                <div class="card-header">
+                    Date of last change:
+                </div>
+                <div class="card-body">
+                    {{ food.DATE_CHANGE|date:'Y-m-d' }}
+                </div>
+            </div>
+            <br>
+            <div class="card">
+                <div class="card-header">
+                    Date of end:
+                </div>
+                <div class="card-body">
+                    {{ food.DATE_END|date:'Y-m-d' }}
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extra_javascript %}
+    <script>
+
+        document.getElementById("edit_food").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/food_enter/update/" + food_c;
+        }, false);
+
+        document.getElementById("edit_food_history").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/history/food_history/" + food_c;
+        }, false);
+
+        document.getElementById("conversion_factors").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/foodandgroup_dt/conversionfactor_dt/" + food_c;
+        }, false);
+
+        document.getElementById("nutrients").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/foodandgroup_dt/nutrient_dt/" + food_c;
+        }, false);
+
+
+    </script>
+
+{% endblock extra_javascript %}

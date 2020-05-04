@@ -1,0 +1,5 @@
+[run]
+include = cnf_xplor/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin

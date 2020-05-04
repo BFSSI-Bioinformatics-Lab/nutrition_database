@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <style>
+        .card-wide {
+            width: 35%;
+        }
+
+        .icons {
+            float: right;
+            cursor: pointer;
+            padding-right: 5px;
+        }
+
+        .rightmost-icon {
+            padding-right: 25px;
+        }
+
+        .search-group {
+            padding: 1rem 1rem;
+        }
+
+            #nutrient_table_filter {
+            visibility: hidden;
+            height: 2px;
+        }
+
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+
+    <!-- <div class="container" onload="load()"> -->
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="card">
+                    <div class="card-header">
+                        Food code:
+                    </div>
+                    <div class="card-body card-body-big" id="food_c">
+                        {{ food.FOOD_C }}
+                    </div>
+                </div>
+
+                <div class="card card-wide w-auto">
+                    <div class="card-header">
+                        Food description:
+                    </div>
+                    <div class="card-body card-body-big">
+                        {{ food.FOOD_DESC }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <i class="far fa-edit fa-2x icons rightmost-icon" id="edit_food" data-toggle="tooltip"
+                   title="Edit"></i>
+                <i class="fas fa-history fa-2x icons" id="edit_food_history" data-toggle="tooltip"
+                   title="History of edits"></i>
+                <i class="fab fa-nutritionix fa-2x icons" id="conversion_factors" data-toggle="tooltip"
+                   title="Conversion factors"></i>
+                <i class="fas fa-apple-alt fa-2x icons" id="food_detail" data-toggle="tooltip"
+                   title="Food detail"></i>
+            </div>
+
+        </div>
+
+
+
+        <div class="row">
+                        <div class="search-group">
+                    <label style="padding-left: 30px;">Search:<input type="text" id="search_box" class="form-control form-control-sm"></label>
+                </div>
+        </div>
+
+
+            <!-- We need a datables here -->
+            <table id="nutrient_table" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                <tr>
+                    <td>SEQUENCE_C</td>
+                    <td>NUTR_AMOUNT_C</td>
+                    <td>FOOD_C</td>
+                    <th>Nutrient</th>
+                    <th>Nutrient symbol</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                    <th>Standard Error</th>
+                    <th>Num observations</th>
+                    <th>source</th>
+                    <th>ref</th>
+                    <th>DATE_ENTRY</th>
+                    <th>USDA_SOURCE</th>
+                    <th>USDA_DERIV</th>
+                    <th>NUTR.TAGNAME</th>
+                    <th>PUBLICATION_CODE</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+{% endblock content %}
+
+{% block extra_javascript %}
+    <script>
+
+        $(document).ready(function () {
+            let food_c = $("#food_c").text().replace(/\s/g, '');
+            nutrient_dt(food_c);
+        });
+
+        // Fix these
+        document.getElementById("edit_food").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/food_enter/update/" + food_c;
+        }, false);
+
+        document.getElementById("edit_food_history").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/history/food_history/" + food_c;
+        }, false);
+
+        document.getElementById("food_detail").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/foodandgroup_dt/fooddetail/" + food_c;
+        }, false);
+
+        document.getElementById("conversion_factors").addEventListener("click", function () {
+            let food_c = $("#food_c").text().replace(/\s/g, "");
+            window.location.href = "/foodandgroup_dt/conversionfactor_dt/" + food_c;
+        }, false);
+
+
+        //
+    function next_page() {
+
+        // TODO: determine which of the cookies it is
+        let data_cookies = JSON.parse(unescape(document.cookie.split(";")[1]))
+
+        let food_c = parseInt($("#food_c").text().replace(/\s/g, ""));
+        let i = data_cookies["food_codes"].indexOf(food_c);
+
+        if (i < (data_cookies["food_codes"].length - 1)) {
+            window.location.href='/foodandgroup_dt/nutrient_dt/' + data_cookies["food_codes"][i+1] + '/'
+        }
+
+    }
+
+    </script>
+{% endblock extra_javascript %}

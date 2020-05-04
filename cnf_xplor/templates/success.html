@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Successfully entered food <span id="food_c">{{ food.FOOD_C }}</span></h1>
+{% endblock content %}
+
+{% block extra_javascript %}
+
+    <script>
+    $( document ).ready(function() {
+        console.log();
+        setTimeout(function(){
+            window.location.replace("/foodandgroup_dt/fooddetail/" + $("#food_c").text() + "/");
+        }, 1000);
+    });
+
+    </script>
+{% endblock extra_javascript %}
