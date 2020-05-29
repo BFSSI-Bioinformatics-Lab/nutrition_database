@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <style>
+
+        .fa-clock {
+            cursor: pointer;
+        }
+
+    </style>
+{% endblock extra_css %}
+
+{% block content %}
+
+    {% if nutrient_h %}
+        <div class="row">
+            <div class="col-sm-12">
+                <table class="table table-sm results-table" id="history_table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="width: 10%">User of change</th>
+                        <th style="width: 10%">Reason for change</th>
+                        <th style="width: 10%">Nutrient code</th>
+                        <th style="width: 10%">Food code</th>
+                        <th style="width: 10%">Nutrient</th>
+                        <th style="width: 10%">Nutrient symbol</th>
+                        <th style="width: 10%">Value</th>
+                        <th style="width: 10%">Unit</th>
+                        <th style="width: 10%">Standard Error</th>
+                        <th style="width: 10%">Num observations</th>
+                        <th style="width: 10%">Revert</th>
+                    </tr>
+
+                    {% for c in nutrient_h %}
+
+                        <tr>
+                            <td style="width: 10%">{{ c.history_user }}</td>
+                            <td style="width: 10%">{{ c.history_change_reason }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUTR_AMOUNT_C }}</td>
+                            <td style="width: 10%">{{ c.history_object.FOOD.FOOD_C }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUTR.NUTR_NAME }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUTR.NUTR_SYMBOL }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUTR_VALUE }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUTR.UNIT }}</td>
+                            <td style="width: 10%">{{ c.history_object.STD_ERROR }}</td>
+                            <td style="width: 10%">{{ c.history_object.NUM_OBSER }}</td>
+                            <td style="width: 10%"><i class="far fa-clock fa-lg"></i></td>
+                        <td style="width:10%; display:none;">{{ c.pk}}</td>
+                        </tr>
+
+                    {% endfor %}
+                    </thead>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+
+{% endblock content %}
+
+
+{% block extra_javascript %}
+
+    <script>
+        $(document).ready(function () {
+            $(document).on("click", ".fa-clock", function () {
+                let td = $(this).parent().parent('tr').find('td'); // Find the elemnts of the row
+                let pk = td[td.length-1].textContent;
+                let nutrient_code = td[2].textContent;
+
+                if (confirm("Are you sure you want to change the database to a previous history item?")) {
+                    // Ajax call
+                    s = '/history/nutrient_revert/' + nutrient_code + '/' + pk + '/';
+                    console.log(s);
+                    $.ajaxSetup({
+                        headers: {"X-CSRFToken": csrftoken}
+                    });
+
+                    $.ajax({
+                        url: s,
+                        type: 'POST',
+                        success: function () {
+                            location.reload();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.log(jqXHR.responseText);
+                        },
+                    });
+                };
+            });
+
+            // You should not be able to revert to the first item
+            $(".fa-clock")[0].remove();
+
+        });
+    </script>
+
+{% endblock extra_javascript %}

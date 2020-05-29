@@ -6,6 +6,8 @@ from cnf_xplor.api.models import Food, NutrientOfFood, Nutrient, ConversionFacto
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 import re
+import json
+
 
 # Create your views here.
 
@@ -241,21 +243,33 @@ class NutrientUpdate(GenericAPIView):
         # This more or less just copies the code from UpdateModelMixin
         # But allows us to add a changeReason to the instance
         instance = self.get_object()
-        print(instance)
-
-        instance.changeReason = request.data["REASON"]
-
-        # Get the old value
+        # Need the old value to run some triggers
         old_val = instance.NUTR_VALUE
+        data = json.loads(list(request.data.keys())[0])
+        #TODO: Where do we get this from
+        instance.changeReason=""
 
-        serializer = self.get_serializer(instance, data=request.data, partial=False)
-        serializer.is_valid(raise_exception=True)
+        # All of the linked models should not be editable
+        # And that currently seems to be the case
+        changed = False
+        for key in data:
+            if key in ['NUTR','NUTR_TAGNAME']: #The default keys that are present when something does not change
+                continue
+            changed = True
+        if not changed:
+            return Response({"changed": False})
+        # Data that has been removed to an empty string should come in as nothing
+        for key in data:
+            if data[key] == "":
+                data[key] = None
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid()
         # If there is an error, see it here
         serializer.save()
-
         # Run triggers
         process_change(instance, old_val)
-        return Response(serializer.data)
+        return Response({"data": [serializer.data], "changed": True}) # Required format for datatables editor
 
 
 class ConversionFactorUpdate(GenericAPIView):
@@ -265,17 +279,19 @@ class ConversionFactorUpdate(GenericAPIView):
         # This more or less just copies the code from UpdateModelMixin
         # But allows us to add a changeReason to the instance
         instance = self.get_object()
-        instance.changeReason = request.data["REASON"]
+        # instance.changeReason = request.data["REASON"]
+        data = json.loads(list(request.data.keys())[0])
 
-        #del request.data['DATE_ENTRY']
-        #print(request.data)
+        if data == {'FLAG_CFG': 'false'}:
+            return Response({"changed": False})
 
-        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        serializer = self.get_serializer(instance, data=data, partial=False)
         serializer.is_valid(raise_exception=True)
         # If there is an error, see it here
         serializer.save()
 
-        return Response(serializer.data)
+        #return Response(serializer.data)
+        return Response({"data": [serializer.data], "changed": True}) # Required format for datatables editor
 
 
 

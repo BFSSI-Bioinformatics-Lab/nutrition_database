@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+
+    {% if food_h %}
+    <div class="row">
+  <div class="col-sm-12">
+    <table class="table table-sm results-table" style="width:100%">
+      <thead>
+        <tr>
+        <th style="width: 10%">User of change</th>
+        <th style="width: 15%">Reason for change</th>
+        <th style="width: 5%">Food code</th>
+        <th style="width: 20%">Food description</th>
+        <th style="width: 20%">Food description (French)</th>
+        <th style="width: 10%">Comment</th>
+        <th style="width: 10%">Comment (French)</th>
+        <th style="width: 10%">Date of change</th>
+      </tr>
+
+    {% for c in food_h %}
+
+      <tr>
+        <th style="width: 10%">{{ c.history_user }}</th>
+        <th style="width: 15%">{{ c.history_change_reason }}</th>
+        <th style="width: 5%">{{ c.history_object.FOOD_C }}</th>
+        <th style="width: 20%">{{ c.history_object.FOOD_DESC }}</th>
+        <th style="width: 20%">{{ c.history_object.FOOD_DESC_F }}</th>
+        <th style="width: 10%">{{ c.history_object.COMMENT_T }}</th>
+        <th style="width: 10%">{{ c.history_object.FN_COMMENT_F }}</th>
+        <th style="width: 10%">{{ c.history_object.DATE_CHANGE }}</th>
+
+      </tr>
+
+    {% endfor %}
+      </thead>
+    </table>
+  </div>
+    </div>
+    {% endif %}
+
+
+{%  endblock content %}

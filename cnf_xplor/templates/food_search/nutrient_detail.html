@@ -20,10 +20,14 @@
             padding: 1rem 1rem;
         }
 
-            #nutrient_table_filter {
+        #nutrient_table_filter {
             visibility: hidden;
             height: 2px;
         }
+
+    .pushed {
+        background-color: gray;
+    }
 
     </style>
 {% endblock extra_css %}
@@ -69,6 +73,12 @@
 
         <div class="row">
                         <div class="search-group">
+
+                                                <i class="fas fa-arrow-left" id="nutrient_backwards"></i>
+                    &ensp;
+                    <i class="fas fa-arrow-right" id="nutrient_forwards"></i>
+
+
                     <label style="padding-left: 30px;">Search:<input type="text" id="search_box" class="form-control form-control-sm"></label>
                 </div>
         </div>
@@ -78,21 +88,21 @@
             <table id="nutrient_table" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                 <tr>
-                    <td>SEQUENCE_C</td>
-                    <td>NUTR_AMOUNT_C</td>
-                    <td>FOOD_C</td>
+                    <th>SEQUENCE_C</th>
+                    <th>NUTR_AMOUNT_C</th>
+                    <th>FOOD</th>
                     <th>Nutrient</th>
                     <th>Nutrient symbol</th>
                     <th>Value</th>
                     <th>Unit</th>
-                    <th>Standard Error</th>
-                    <th>Num observations</th>
-                    <th>source</th>
-                    <th>ref</th>
+                    <th>STD_ERROR</th>
+                    <th>NUM_OBSER</th>
+                    <th>NUTR_C</th>
+                    <th>REF_C</th>
                     <th>DATE_ENTRY</th>
                     <th>USDA_SOURCE</th>
                     <th>USDA_DERIV</th>
-                    <th>NUTR.TAGNAME</th>
+                    <th>NUTR_TAGNAME</th>
                     <th>PUBLICATION_CODE</th>
                 </tr>
                 </thead>
@@ -108,7 +118,6 @@
             nutrient_dt(food_c);
         });
 
-        // Fix these
         document.getElementById("edit_food").addEventListener("click", function () {
             let food_c = $("#food_c").text().replace(/\s/g, "");
             window.location.href = "/food_enter/update/" + food_c;
@@ -121,29 +130,245 @@
 
         document.getElementById("food_detail").addEventListener("click", function () {
             let food_c = $("#food_c").text().replace(/\s/g, "");
-            window.location.href = "/foodandgroup_dt/fooddetail/" + food_c;
+            window.location.href = "/food_search/food/" + food_c;
         }, false);
 
         document.getElementById("conversion_factors").addEventListener("click", function () {
             let food_c = $("#food_c").text().replace(/\s/g, "");
-            window.location.href = "/foodandgroup_dt/conversionfactor_dt/" + food_c;
+            window.location.href = "/food_search/conversionfactor/" + food_c;
         }, false);
 
 
-        //
-    function next_page() {
+    function next_prev_page(prev=false) {
 
-        // TODO: determine which of the cookies it is
-        let data_cookies = JSON.parse(unescape(document.cookie.split(";")[1]))
+        // Determine which of the cookies has the food code information
+        let i = 0;
+        while (!document.cookie.split(";")[i].includes('food_codes')) {
+            i += 1;
+            if (i >= document.cookie.split(";").length) {
+                return null
+            }
+        }
+
+        let data_cookies = JSON.parse(unescape(document.cookie.split(";")[i]));
 
         let food_c = parseInt($("#food_c").text().replace(/\s/g, ""));
-        let i = data_cookies["food_codes"].indexOf(food_c);
+        let j = data_cookies["food_codes"].indexOf(food_c);
+        let search_val = $("#search_box").val();
 
-        if (i < (data_cookies["food_codes"].length - 1)) {
-            window.location.href='/foodandgroup_dt/nutrient_dt/' + data_cookies["food_codes"][i+1] + '/'
+        if (!prev) {
+            if (j < (data_cookies["food_codes"].length - 1)) {
+                window.location.href = '/food_search/nutrient/' + data_cookies["food_codes"][j + 1] + '/?search=' + search_val;
+            }
+        } else {
+            if (j > 0) {
+                window.location.href = '/food_search/nutrient/' + data_cookies["food_codes"][j - 1] + '/?search=' + search_val;
+            }
+
         }
 
     }
+
+    document.getElementById("nutrient_backwards").addEventListener("click", function () {
+        next_prev_page(true)
+    }, false);
+    document.getElementById("nutrient_forwards").addEventListener("click", function () {
+        next_prev_page(false)
+    }, false);
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var search_str = '{{ search_data }}';
+        $("#search_box").val(search_str);
+        table_nutrient.draw();
+        table_nutrient.keys.disable();
+    }, false);
+
+
+
+ $.fn.dataTable.ext.search.push(
+     function (settings, data, dataIndex) {
+         if ($("#search_box").val() == "") {
+             return true
+         }
+         searches = $("#search_box").val().split(" OR ");
+         for (i = 0; i < searches.length; i++) {
+             s = searches[i].toUpperCase();
+             if (data[3].includes(s)) {
+                 return true;
+             }
+         }
+         return false;
+     }
+ );
+
+
+ var table_nutrient;
+var editor;
+var z;
+var cell;
+
+editor = new $.fn.dataTable.Editor({
+    table: "#nutrient_table",
+    idSrc: "NUTR_AMOUNT_C",
+    // Important for making it submit the change on tab
+    formOptions: {
+        inline: {
+            onBlur: 'submit'
+        }
+    },
+    ajax: function (method, url, data, success, error) {
+
+        let nutrient_amount_c = Object.keys(data.data)[0];
+        s = '/api/nutrient_update/' + nutrient_amount_c + "/";
+
+        $.ajaxSetup({
+            headers: {"X-CSRFToken": csrftoken}
+        });
+
+        $.ajax({
+            url: s,
+            data: JSON.stringify(data.data[nutrient_amount_c]),
+            dataType: "json",
+            type: "PUT",
+            success: function (json) {
+                success(json);
+            },
+            error: function (xhr, error2, thrown) {
+                error(xhr, error2, thrown);
+            }
+        });
+    },
+
+    fields: [
+        {label: "SEQUENCE_C", name: "NUTR.NUTR_AMOUNT_C"},
+        {label: "NUTR_AMOUNT_C", name: "NUTR_AMOUNT_C"},
+        {label: "FOOD", name: "FOOD"},
+        {label: "Nutrient", name: "NUTR.NUTR_NAME"},
+        {label: "Nutrient symbol", name: "NUTR.NUTR_SYMBOL"},
+        {label: "Value", name: "NUTR_VALUE"},
+        {label: "Unit", name: "NUTR.UNIT"},
+        {label: "STD_ERROR", name: "STD_ERROR"},
+        {label: "NUM_OBSER", name: "NUM_OBSER"},
+
+        {label: "NUTR_C", name: "NUTR_C"},
+        {label: "REF_C", name: "REF_C"},
+        {label: "DATE_ENTRY", name: "DATE_ENTRY"},
+        {label: "USDA_SOURCE", name: "USDA_SOURCE"},
+        {label: "USDA_DERIV", name: "USDA_DERIV"},
+        {label: "NUTR_TAGNAME", name: "NUTR.TAGNAME"},
+        {label: "PUBLICATION_CODE", name: "PUBLICATION_CODE"},
+
+    ]
+});
+
+
+function nutrient_dt(food_c, search_str_nutrient = "") {
+
+    // Get a list of currently visible columns
+    let cols = [];
+    if ($("#nutrient_table_wrapper").find("th").length > 0) {
+        $.each($("#nutrient_table_wrapper").find("th"), function (i, k) {
+            cols.push(k.innerText);
+        });
+        // Get the unique values
+        cols = cols.filter((item, i, ar) => ar.indexOf(item) === i);
+    } else {
+        cols = ["Nutrient", "Nutrient symbol", "Value", "Unit", "Standard Error", "number of observations", "source c", "ref c",
+            "date entry", "usda source", "usda derivation", "tagname", "publication code"]
+    }
+
+    cols = cols.map(function (i) {
+        return i.toLowerCase()
+    });
+
+
+    s = '/api/nutrient/?food_c=' + food_c + "&format=datatables";
+    table_nutrient = $('#nutrient_table').DataTable({
+        // "serverSide": true, // Breaks searching
+        "processing": true,
+        "destroy": true,
+        "scrollX": true,
+        "scrollY": true,
+        //"dom": 'BZfrtip', // Adds button and resize
+        "dom": 'Bfrtip',
+        keys: {
+            columns: ':not(:first-child)',
+            keys: [9],
+            editor: editor,
+            editOnFocus: true
+        },
+        select: {
+            style: 'os',
+            selector: 'td:first-child'
+        },
+        "pageLength": 200,
+        "ajax": s,
+        "colReorder": true,
+        "bFilter": false,
+        "searching": true,
+        "oSearch": {"sSearch": search_str_nutrient},
+        "columns": [
+            {"data": "NUTR.SEQUENCE_C", "visible": false, "className": "noVis"},
+            {"data": "NUTR_AMOUNT_C", "visible": false, "className": "noVis"},
+            {"data": "FOOD", "visible": false, "className": "noVis"},
+            {"data": "NUTR.NUTR_NAME", visible: cols.includes("nutrient"), "title": "Nutrient"}, // These 4 are defined by the serializer
+            {"data": "NUTR.NUTR_SYMBOL", visible: cols.includes("nutrient symbol"), "title": "Nutrient symbol"},
+            {"data": "NUTR_VALUE", visible: cols.includes("value"), "title": "Value"},
+            {"data": "NUTR.UNIT", visible: cols.includes("unit"), "title": "Unit"},
+            {"data": "STD_ERROR", visible: cols.includes("standard error"), 'title': "Standard Error"},
+            {"data": "NUM_OBSER", visible: cols.includes("number of observations"), 'title': "Number of observations"},
+            {"data": "NUTR_C", visible: cols.includes("source c"), "title": "Source c"},
+            {"data": "REF_C", visible: cols.includes("ref c"), "title": "Ref c"},
+            {"data": "DATE_ENTRY", visible: cols.includes("date entry"), "title": "Date entry"},
+            {"data": "USDA_SOURCE", visible: cols.includes("usda source"), "title": "USDA source"},
+            {"data": "USDA_DERIV", visible: cols.includes("usda derivation"), "title": "USDA derivation"},
+            {"data": "NUTR.TAGNAME", visible: cols.includes("tagname"), "title": "Tagname"},
+            {"data": "PUBLICATION_CODE", visible: cols.includes("publication code"), "title": "Publication Code"},
+        ],
+        buttons: [
+            {
+                text: 'Edit mode',
+                name: 'edit',
+                attr: {
+                    id: 'edit_button'
+                },
+
+                action: function (e, dt, node, config) {
+                    if (!$("#edit_button").hasClass("pushed")) {
+                        $("#edit_button").addClass("pushed");
+                        table_nutrient.keys.enable();
+                    } else {
+                        $("#edit_button").removeClass("pushed");
+                        // Next two lines deselect the current selected cell
+                        editor.close();
+                        $(".focus").removeClass("focus");
+                        table_nutrient.keys.disable();
+                    }
+                }
+            },
+
+            {
+                text: 'History',
+                name: 'history',
+                action: function (e, dt, node, config) {
+                    var adata = dt.rows({
+                        selected: true
+                    });
+                    let nutr_c = adata.data()[0]["NUTR_AMOUNT_C"];
+                    window.location.href = "/history/nutrient_history/" + nutr_c;
+                }
+            },
+        ]
+    });
+
+
+    $('#search_box').keyup(function () {
+        table_nutrient.draw();
+    });
+
+}
+
 
     </script>
 {% endblock extra_javascript %}

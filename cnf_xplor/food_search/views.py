@@ -11,6 +11,10 @@ class Search(LoginRequiredMixin, generic.TemplateView):
     template_name = 'food_search/food_search.html'
 
 
+class Test(LoginRequiredMixin, generic.TemplateView):
+    template_name = 'food_search/test.html'
+
+
 class ConversionFactor_Detail(LoginRequiredMixin, generic.detail.DetailView):
     model = Food
     template_name = 'food_search/conversionfactor_detail.html'
@@ -28,6 +32,9 @@ class Nutrient_Detail(LoginRequiredMixin, generic.detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        search_str = self.request.GET.get('search', None)
+        if search_str is not None:
+            context["search_data"] = search_str
         return context
 
 
@@ -40,4 +47,3 @@ class Food_Detail(LoginRequiredMixin, generic.detail.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-

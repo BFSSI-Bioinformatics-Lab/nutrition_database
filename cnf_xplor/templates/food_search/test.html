@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <body>
+                    <table id="nutrient_table" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>NUTR_AMOUNT_C</th>
+                            <th>Nutrient</th>
+                            <th>Nutrient symbol</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                        </tr>
+                        </thead>
+                    </table>
+
+        </body>
+
+
+{%  endblock content %}
+
+
+{% block extra_javascript %}
+    <script>
+var table_nutrient;
+var editor;
+
+    editor = new $.fn.dataTable.Editor( {
+        table: "#nutrient_table",
+        idSrc: "NUTR_AMOUNT_C",
+        fields: [
+            { label: "NUTR_AMOUNT_C", name: "NUTR_AMOUNT_C"},
+            { label: "Nutrient", name: "NUTR_NAME"},
+            { label: "Nutrient symbol", name: "NUTR_SYMBOL"},
+            { label: "Value", name: "NUTR_VALUE"},
+            { label: "Unit", name: "UNIT"},
+        ]
+    } );
+
+                let food_c = 203;
+    s = 'http://127.0.0.1:8000/api/nutrient/?food_c=' + food_c + "&format=datatables";
+    table_nutrient = $('#nutrient_table').DataTable({
+        // "serverSide": true, // Breaks searching
+        //"processing": true,
+        //"destroy": true,
+        //"scrollX": true,
+        //"scrollY": true,
+        //"dom": 'BZfrtip', // Adds button and resize
+        "dom": 'Bfrtip',
+        "select": true,
+        //select: {
+        //    style:    'os',
+        //    selector: 'td:first-child'
+        //},
+        "pageLength": 200,
+        "ajax": s,
+        //"colReorder": true,
+        //"bFilter": false,
+        //"altEditor": true,
+        //"searching": true,
+        //"oSearch": {"sSearch": search_str_nutrient},
+        "columns": [
+           // {"data": "NUTR.SEQUENCE_C", "visible": false, "className": "noVis"},
+            {"data": "NUTR_AMOUNT_C", "visible": false, "className": "noVis"},
+            // {"data": "FOOD", "visible": false, "className": "noVis"},
+            {"data": "NUTR.NUTR_NAME", visible: true, "title": "Nutrient"}, // These 4 are defined by the serializer
+            {"data": "NUTR.NUTR_SYMBOL", visible: true, "title": "Nutrient symbol"},
+            {"data": "NUTR_VALUE", visible: true, "title": "Value"},
+            {"data": "NUTR.UNIT", visible: true, "title": "Unit"}],
+          //  {"data": "STD_ERROR", visible: cols.includes("standard error"), 'title': "Standard Error"},
+          //  {"data": "NUM_OBSER", visible: cols.includes("number of observations"), 'title': "Number of observations"},
+          //  {"data": "NUTR_C", visible: cols.includes("source c"), "title": "Source c"},
+          //  {"data": "REF_C", visible: cols.includes("ref c"), "title": "Ref c"},
+          //  {"data": "DATE_ENTRY", visible: cols.includes("date entry"), "title": "Date entry"},
+          //  {"data": "USDA_SOURCE", visible: cols.includes("usda source"), "title": "USDA source"},
+          //  {"data": "USDA_DERIV", visible: cols.includes("usda derivation"), "title": "USDA derivation"},
+          //  {"data": "NUTR.TAGNAME", visible: cols.includes("tagname"), "title": "Tagname"},
+          //  {"data": "PUBLICATION_CODE", visible: cols.includes("publication code"), "title": "Publication Code"},
+        buttons: [
+            { extend: "create", editor: editor },
+            { extend: "edit",   editor: editor },
+            { extend: "remove", editor: editor }
+        ]    });
+</script>
+
+{% endblock extra_javascript %}

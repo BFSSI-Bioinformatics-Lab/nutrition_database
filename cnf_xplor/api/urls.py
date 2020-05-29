@@ -16,8 +16,7 @@ router.register(r'conversionfactor', views.ConversionFactorDataTables, base_name
 urlpatterns = [
     path('', include(router.urls)),
     url('nutrient_update/(?P<pk>\d+)/$', views.NutrientUpdate.as_view(), name='nutrient_update'),
-    url('conversionfactor_update/(?P<pk>\d+)/$', views.ConversionFactorUpdate.as_view(), name='nutrient_update'),
-
+    url('conversionfactor_update/(?P<pk>\d+)/$', views.ConversionFactorUpdate.as_view(), name='cf_update'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 

@@ -22,9 +22,9 @@
 
 
         <!-- Your stuff: Third-party CSS libraries go here -->
-        <link rel="stylesheet" type="text/css"
-              href="https://cdn.datatables.net/v/bs4/dt-1.10.20/b-1.6.1/cr-1.5.2/sl-1.3.1/datatables.min.css"/>
 
+        {#        <link rel="stylesheet" type="text/css"#}
+        {#              href="https://cdn.datatables.net/v/bs4/dt-1.10.20/b-1.6.1/cr-1.5.2/sl-1.3.1/datatables.min.css"/>#}
 
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css"
               integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN"
@@ -33,6 +33,7 @@
         <!-- This file stores project-specific CSS -->
 
         <link href="{% static 'css/project.css' %}" rel="stylesheet">
+        <link href="{% static 'css/datatables.min.css' %}" rel="stylesheet">
 
         <style>
 
@@ -44,9 +45,9 @@
                 padding: 4px 4px; /* e.g. change 8x to 4px here */
             }
 
-            table.dataTable tbody tr.selected {
-                background-color: #808080;
-            }
+            {#table.dataTable tbody tr.selected {#}
+            {#    background-color: #808080;#}
+            {#}#}
 
             .dataTables_wrapper {
                 font-size: 12px
@@ -149,12 +150,13 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
-    <script type="text/javascript"
-            src="https://cdn.datatables.net/v/bs4/dt-1.10.20/b-1.6.1/cr-1.5.2/sl-1.3.1/datatables.min.js"></script>
+
+
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="{% static 'js/datatables.min.js' %}"></script>
 
     <!-- For the table.order.neutral() -->
-    <script src="https://cdn.datatables.net/plug-ins/1.10.20/api/order.neutral().js"></script>
+{#    <script src="https://cdn.datatables.net/plug-ins/1.10.20/api/order.neutral().js"></script>#}
 
     <script>
     // Define this token as a global
@@ -169,11 +171,9 @@
     <!-- place project specific Javascript in this file -->
 
     <script src="{% static 'js/project.js' %}"></script>
-    <!-- https://github.com/KasperOlesen/DataTable-AltEditor -->
-    <script src="{% static 'js/dataTables.altEditor.free.js' %}"></script>
     <!-- https://github.com/Silvacom/colResize -->
-    <script src="{% static 'js/dataTables.colResize.js' %}"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.colVis.min.js"></script>
+{#    <script src="{% static 'js/dataTables.colResize.js' %}"></script>#}
+{#    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.colVis.min.js"></script>#}
 
 {% endblock javascript %}
 </body>

@@ -19,6 +19,7 @@ urlpatterns = [
     path("api/", include('cnf_xplor.api.urls')),
       path("food_enter/", include('cnf_xplor.item_enter.urls')),
       path("food_search/", include('cnf_xplor.food_search.urls')),
+      path("history/", include('cnf_xplor.history.urls')),
 
   ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
